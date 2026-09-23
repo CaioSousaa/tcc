@@ -1,0 +1,126 @@
+import { MigrationInterface, QueryRunner } from "typeorm";
+
+export class SyncSchemaWithEntities1789827920646 implements MigrationInterface {
+    name = 'SyncSchemaWithEntities1789827920646'
+
+    public async up(queryRunner: QueryRunner): Promise<void> {
+        await queryRunner.query(`ALTER TABLE "boards" DROP CONSTRAINT "uq_boards_user_id_name"`);
+        await queryRunner.query(`CREATE TABLE "cards" ("id" uuid NOT NULL DEFAULT uuid_generate_v4(), "list_id" uuid NOT NULL, "title" character varying(255) NOT NULL, "description" character varying(5000), "position" integer NOT NULL, "due_date" date, "created_at" TIMESTAMP NOT NULL DEFAULT now(), "updated_at" TIMESTAMP NOT NULL DEFAULT now(), CONSTRAINT "PK_5f3269634705fdff4a9935860fc" PRIMARY KEY ("id"))`);
+        await queryRunner.query(`CREATE INDEX "idx_cards_due_date" ON "cards"  ("due_date") `);
+        await queryRunner.query(`CREATE INDEX "idx_cards_list_id_position" ON "cards"  ("list_id", "position") `);
+        await queryRunner.query(`CREATE INDEX "idx_cards_list_id" ON "cards"  ("list_id") `);
+        await queryRunner.query(`CREATE TABLE "card_assignments" ("id" uuid NOT NULL DEFAULT uuid_generate_v4(), "card_id" uuid NOT NULL, "board_member_id" uuid NOT NULL, "assigned_at" TIMESTAMP NOT NULL DEFAULT now(), "created_at" TIMESTAMP NOT NULL DEFAULT now(), CONSTRAINT "uq_card_assignments_card_member" UNIQUE ("card_id", "board_member_id"), CONSTRAINT "PK_f01661f5c7771423962ac890cc4" PRIMARY KEY ("id"))`);
+        await queryRunner.query(`CREATE INDEX "idx_card_assignments_board_member_id" ON "card_assignments"  ("board_member_id") `);
+        await queryRunner.query(`CREATE INDEX "idx_card_assignments_card_id" ON "card_assignments"  ("card_id") `);
+        await queryRunner.query(`CREATE TYPE "public"."board_members_role_enum" AS ENUM('admin', 'editor', 'viewer')`);
+        await queryRunner.query(`CREATE TYPE "public"."board_members_status_enum" AS ENUM('active', 'invite_pending', 'removed')`);
+        await queryRunner.query(`CREATE TABLE "board_members" ("id" uuid NOT NULL DEFAULT uuid_generate_v4(), "board_id" uuid NOT NULL, "user_id" uuid, "role" "public"."board_members_role_enum" NOT NULL DEFAULT 'viewer', "status" "public"."board_members_status_enum" NOT NULL DEFAULT 'active', "invited_at" TIMESTAMP, "accepted_at" TIMESTAMP, "created_at" TIMESTAMP NOT NULL DEFAULT now(), "updated_at" TIMESTAMP NOT NULL DEFAULT now(), CONSTRAINT "uq_board_members_board_user" UNIQUE ("board_id", "user_id"), CONSTRAINT "PK_6994cea1393b5fa3a0dd827a9f7" PRIMARY KEY ("id"))`);
+        await queryRunner.query(`CREATE INDEX "idx_board_members_status" ON "board_members"  ("status") `);
+        await queryRunner.query(`CREATE INDEX "idx_board_members_user_id" ON "board_members"  ("user_id") `);
+        await queryRunner.query(`CREATE INDEX "idx_board_members_board_id" ON "board_members"  ("board_id") `);
+        await queryRunner.query(`CREATE TABLE "invitations" ("id" uuid NOT NULL DEFAULT uuid_generate_v4(), "board_id" uuid NOT NULL, "email" character varying(255) NOT NULL, "role" character varying(50) NOT NULL DEFAULT 'viewer', "token" character varying(255) NOT NULL, "expires_at" TIMESTAMP NOT NULL, "created_at" TIMESTAMP NOT NULL DEFAULT now(), "updated_at" TIMESTAMP NOT NULL DEFAULT now(), "accepted_at" TIMESTAMP, CONSTRAINT "UQ_e577dcf9bb6d084373ed3998509" UNIQUE ("token"), CONSTRAINT "uq_invitations_token" UNIQUE ("token"), CONSTRAINT "uq_invitations_board_email" UNIQUE ("board_id", "email"), CONSTRAINT "PK_5dec98cfdfd562e4ad3648bbb07" PRIMARY KEY ("id"))`);
+        await queryRunner.query(`CREATE INDEX "idx_invitations_expires_at" ON "invitations"  ("expires_at") `);
+        await queryRunner.query(`CREATE INDEX "idx_invitations_email" ON "invitations"  ("email") `);
+        await queryRunner.query(`CREATE INDEX "idx_invitations_token" ON "invitations"  ("token") `);
+        await queryRunner.query(`CREATE INDEX "idx_invitations_board_id" ON "invitations"  ("board_id") `);
+        await queryRunner.query(`CREATE TABLE "card_labels" ("id" uuid NOT NULL DEFAULT uuid_generate_v4(), "card_id" uuid NOT NULL, "label_id" uuid NOT NULL, "created_at" TIMESTAMP NOT NULL DEFAULT now(), CONSTRAINT "uq_card_labels_card_label" UNIQUE ("card_id", "label_id"), CONSTRAINT "PK_6f448e824cb4a5d7f2f334ff71c" PRIMARY KEY ("id"))`);
+        await queryRunner.query(`CREATE INDEX "idx_card_labels_label_id" ON "card_labels"  ("label_id") `);
+        await queryRunner.query(`CREATE INDEX "idx_card_labels_card_id" ON "card_labels"  ("card_id") `);
+        await queryRunner.query(`CREATE TABLE "labels" ("id" uuid NOT NULL DEFAULT uuid_generate_v4(), "board_id" uuid NOT NULL, "name" character varying(50) NOT NULL, "color" character varying(7) NOT NULL, "created_at" TIMESTAMP NOT NULL DEFAULT now(), "updated_at" TIMESTAMP NOT NULL DEFAULT now(), CONSTRAINT "uq_labels_board_name" UNIQUE ("board_id", "name"), CONSTRAINT "PK_c0c4e97f76f1f3a268c7a70b925" PRIMARY KEY ("id"))`);
+        await queryRunner.query(`CREATE INDEX "idx_labels_board_id" ON "labels"  ("board_id") `);
+        await queryRunner.query(`CREATE TABLE "comments" ("id" uuid NOT NULL DEFAULT uuid_generate_v4(), "card_id" uuid NOT NULL, "user_id" uuid NOT NULL, "content" character varying(1000) NOT NULL, "created_at" TIMESTAMP NOT NULL DEFAULT now(), "updated_at" TIMESTAMP NOT NULL DEFAULT now(), "edited_at" TIMESTAMP, CONSTRAINT "PK_8bf68bc960f2b69e818bdb90dcb" PRIMARY KEY ("id"))`);
+        await queryRunner.query(`CREATE INDEX "idx_comments_created_at" ON "comments"  ("created_at") `);
+        await queryRunner.query(`CREATE INDEX "idx_comments_user_id" ON "comments"  ("user_id") `);
+        await queryRunner.query(`CREATE INDEX "idx_comments_card_id" ON "comments"  ("card_id") `);
+        await queryRunner.query(`CREATE TABLE "checklist_items" ("id" uuid NOT NULL DEFAULT uuid_generate_v4(), "checklist_id" uuid NOT NULL, "title" character varying(500) NOT NULL, "is_completed" boolean NOT NULL DEFAULT false, "position" integer NOT NULL, "created_at" TIMESTAMP NOT NULL DEFAULT now(), "updated_at" TIMESTAMP NOT NULL DEFAULT now(), CONSTRAINT "PK_bae00945a1d4789bd648e583e29" PRIMARY KEY ("id"))`);
+        await queryRunner.query(`CREATE INDEX "idx_checklist_items_position" ON "checklist_items"  ("checklist_id", "position") `);
+        await queryRunner.query(`CREATE INDEX "idx_checklist_items_checklist_id" ON "checklist_items"  ("checklist_id") `);
+        await queryRunner.query(`CREATE TABLE "checklists" ("id" uuid NOT NULL DEFAULT uuid_generate_v4(), "card_id" uuid NOT NULL, "created_at" TIMESTAMP NOT NULL DEFAULT now(), "updated_at" TIMESTAMP NOT NULL DEFAULT now(), CONSTRAINT "UQ_99530035e78ff28767b53f6031f" UNIQUE ("card_id"), CONSTRAINT "PK_336ade2047f3d713e1afa20d2c6" PRIMARY KEY ("id"))`);
+        await queryRunner.query(`CREATE INDEX "idx_checklists_card_id" ON "checklists"  ("card_id") `);
+        await queryRunner.query(`ALTER TABLE "columns" ADD "updated_at" TIMESTAMP NOT NULL DEFAULT now()`);
+        await queryRunner.query(`ALTER TABLE "users" ALTER COLUMN "created_at" SET DEFAULT now()`);
+        await queryRunner.query(`ALTER TABLE "users" ALTER COLUMN "updated_at" SET DEFAULT now()`);
+        await queryRunner.query(`ALTER TABLE "sessions" ALTER COLUMN "created_at" SET DEFAULT now()`);
+        await queryRunner.query(`ALTER TABLE "sessions" ALTER COLUMN "last_activity_at" DROP DEFAULT`);
+        await queryRunner.query(`ALTER TABLE "columns" DROP COLUMN "name"`);
+        await queryRunner.query(`ALTER TABLE "columns" ADD "name" character varying(100) NOT NULL`);
+        await queryRunner.query(`ALTER TABLE "columns" ALTER COLUMN "created_at" SET DEFAULT now()`);
+        await queryRunner.query(`ALTER TABLE "boards" ALTER COLUMN "created_at" SET DEFAULT now()`);
+        await queryRunner.query(`ALTER TABLE "boards" ALTER COLUMN "updated_at" SET DEFAULT now()`);
+        await queryRunner.query(`ALTER TABLE "columns" ADD CONSTRAINT "uq_columns_board_id_name" UNIQUE ("board_id", "name")`);
+        await queryRunner.query(`ALTER TABLE "cards" ADD CONSTRAINT "FK_2d636e34938aee366ba98cf1fe9" FOREIGN KEY ("list_id") REFERENCES "columns"("id") ON DELETE CASCADE ON UPDATE NO ACTION`);
+        await queryRunner.query(`ALTER TABLE "card_assignments" ADD CONSTRAINT "FK_9b45e1eb6bb6053b77da72f0375" FOREIGN KEY ("card_id") REFERENCES "cards"("id") ON DELETE CASCADE ON UPDATE NO ACTION`);
+        await queryRunner.query(`ALTER TABLE "card_assignments" ADD CONSTRAINT "FK_3078444654b16512ed7bd36a0ee" FOREIGN KEY ("board_member_id") REFERENCES "board_members"("id") ON DELETE CASCADE ON UPDATE NO ACTION`);
+        await queryRunner.query(`ALTER TABLE "board_members" ADD CONSTRAINT "FK_ca2c72a39c80199717012df3932" FOREIGN KEY ("board_id") REFERENCES "boards"("id") ON DELETE CASCADE ON UPDATE NO ACTION`);
+        await queryRunner.query(`ALTER TABLE "board_members" ADD CONSTRAINT "FK_a9989bac63c51805e59ce91a541" FOREIGN KEY ("user_id") REFERENCES "users"("id") ON DELETE CASCADE ON UPDATE NO ACTION`);
+        await queryRunner.query(`ALTER TABLE "invitations" ADD CONSTRAINT "FK_283bdff684fc24cfb5fdc6d71ab" FOREIGN KEY ("board_id") REFERENCES "boards"("id") ON DELETE CASCADE ON UPDATE NO ACTION`);
+        await queryRunner.query(`ALTER TABLE "card_labels" ADD CONSTRAINT "FK_ed1a892fd622ea37a82c3c76c04" FOREIGN KEY ("card_id") REFERENCES "cards"("id") ON DELETE CASCADE ON UPDATE NO ACTION`);
+        await queryRunner.query(`ALTER TABLE "card_labels" ADD CONSTRAINT "FK_2c39803011be47a862bbce4d730" FOREIGN KEY ("label_id") REFERENCES "labels"("id") ON DELETE CASCADE ON UPDATE NO ACTION`);
+        await queryRunner.query(`ALTER TABLE "labels" ADD CONSTRAINT "FK_8c01957f89bcb4364bb5b4b35ce" FOREIGN KEY ("board_id") REFERENCES "boards"("id") ON DELETE CASCADE ON UPDATE NO ACTION`);
+        await queryRunner.query(`ALTER TABLE "comments" ADD CONSTRAINT "FK_93d9a3773334ccc328e38cec696" FOREIGN KEY ("card_id") REFERENCES "cards"("id") ON DELETE CASCADE ON UPDATE NO ACTION`);
+        await queryRunner.query(`ALTER TABLE "comments" ADD CONSTRAINT "FK_4c675567d2a58f0b07cef09c13d" FOREIGN KEY ("user_id") REFERENCES "users"("id") ON DELETE NO ACTION ON UPDATE NO ACTION`);
+        await queryRunner.query(`ALTER TABLE "checklist_items" ADD CONSTRAINT "FK_d98db409c26c6ed1a6d20c1bb0c" FOREIGN KEY ("checklist_id") REFERENCES "checklists"("id") ON DELETE CASCADE ON UPDATE NO ACTION`);
+        await queryRunner.query(`ALTER TABLE "checklists" ADD CONSTRAINT "FK_99530035e78ff28767b53f6031f" FOREIGN KEY ("card_id") REFERENCES "cards"("id") ON DELETE CASCADE ON UPDATE NO ACTION`);
+    }
+
+    public async down(queryRunner: QueryRunner): Promise<void> {
+        await queryRunner.query(`ALTER TABLE "checklists" DROP CONSTRAINT "FK_99530035e78ff28767b53f6031f"`);
+        await queryRunner.query(`ALTER TABLE "checklist_items" DROP CONSTRAINT "FK_d98db409c26c6ed1a6d20c1bb0c"`);
+        await queryRunner.query(`ALTER TABLE "comments" DROP CONSTRAINT "FK_4c675567d2a58f0b07cef09c13d"`);
+        await queryRunner.query(`ALTER TABLE "comments" DROP CONSTRAINT "FK_93d9a3773334ccc328e38cec696"`);
+        await queryRunner.query(`ALTER TABLE "labels" DROP CONSTRAINT "FK_8c01957f89bcb4364bb5b4b35ce"`);
+        await queryRunner.query(`ALTER TABLE "card_labels" DROP CONSTRAINT "FK_2c39803011be47a862bbce4d730"`);
+        await queryRunner.query(`ALTER TABLE "card_labels" DROP CONSTRAINT "FK_ed1a892fd622ea37a82c3c76c04"`);
+        await queryRunner.query(`ALTER TABLE "invitations" DROP CONSTRAINT "FK_283bdff684fc24cfb5fdc6d71ab"`);
+        await queryRunner.query(`ALTER TABLE "board_members" DROP CONSTRAINT "FK_a9989bac63c51805e59ce91a541"`);
+        await queryRunner.query(`ALTER TABLE "board_members" DROP CONSTRAINT "FK_ca2c72a39c80199717012df3932"`);
+        await queryRunner.query(`ALTER TABLE "card_assignments" DROP CONSTRAINT "FK_3078444654b16512ed7bd36a0ee"`);
+        await queryRunner.query(`ALTER TABLE "card_assignments" DROP CONSTRAINT "FK_9b45e1eb6bb6053b77da72f0375"`);
+        await queryRunner.query(`ALTER TABLE "cards" DROP CONSTRAINT "FK_2d636e34938aee366ba98cf1fe9"`);
+        await queryRunner.query(`ALTER TABLE "columns" DROP CONSTRAINT "uq_columns_board_id_name"`);
+        await queryRunner.query(`ALTER TABLE "boards" ALTER COLUMN "updated_at" SET DEFAULT CURRENT_TIMESTAMP`);
+        await queryRunner.query(`ALTER TABLE "boards" ALTER COLUMN "created_at" SET DEFAULT CURRENT_TIMESTAMP`);
+        await queryRunner.query(`ALTER TABLE "columns" ALTER COLUMN "created_at" SET DEFAULT CURRENT_TIMESTAMP`);
+        await queryRunner.query(`ALTER TABLE "columns" DROP COLUMN "name"`);
+        await queryRunner.query(`ALTER TABLE "columns" ADD "name" character varying(50) NOT NULL`);
+        await queryRunner.query(`ALTER TABLE "sessions" ALTER COLUMN "last_activity_at" SET DEFAULT CURRENT_TIMESTAMP`);
+        await queryRunner.query(`ALTER TABLE "sessions" ALTER COLUMN "created_at" SET DEFAULT CURRENT_TIMESTAMP`);
+        await queryRunner.query(`ALTER TABLE "users" ALTER COLUMN "updated_at" SET DEFAULT CURRENT_TIMESTAMP`);
+        await queryRunner.query(`ALTER TABLE "users" ALTER COLUMN "created_at" SET DEFAULT CURRENT_TIMESTAMP`);
+        await queryRunner.query(`ALTER TABLE "columns" DROP COLUMN "updated_at"`);
+        await queryRunner.query(`DROP INDEX "public"."idx_checklists_card_id"`);
+        await queryRunner.query(`DROP TABLE "checklists"`);
+        await queryRunner.query(`DROP INDEX "public"."idx_checklist_items_checklist_id"`);
+        await queryRunner.query(`DROP INDEX "public"."idx_checklist_items_position"`);
+        await queryRunner.query(`DROP TABLE "checklist_items"`);
+        await queryRunner.query(`DROP INDEX "public"."idx_comments_card_id"`);
+        await queryRunner.query(`DROP INDEX "public"."idx_comments_user_id"`);
+        await queryRunner.query(`DROP INDEX "public"."idx_comments_created_at"`);
+        await queryRunner.query(`DROP TABLE "comments"`);
+        await queryRunner.query(`DROP INDEX "public"."idx_labels_board_id"`);
+        await queryRunner.query(`DROP TABLE "labels"`);
+        await queryRunner.query(`DROP INDEX "public"."idx_card_labels_card_id"`);
+        await queryRunner.query(`DROP INDEX "public"."idx_card_labels_label_id"`);
+        await queryRunner.query(`DROP TABLE "card_labels"`);
+        await queryRunner.query(`DROP INDEX "public"."idx_invitations_board_id"`);
+        await queryRunner.query(`DROP INDEX "public"."idx_invitations_token"`);
+        await queryRunner.query(`DROP INDEX "public"."idx_invitations_email"`);
+        await queryRunner.query(`DROP INDEX "public"."idx_invitations_expires_at"`);
+        await queryRunner.query(`DROP TABLE "invitations"`);
+        await queryRunner.query(`DROP INDEX "public"."idx_board_members_board_id"`);
+        await queryRunner.query(`DROP INDEX "public"."idx_board_members_user_id"`);
+        await queryRunner.query(`DROP INDEX "public"."idx_board_members_status"`);
+        await queryRunner.query(`DROP TABLE "board_members"`);
+        await queryRunner.query(`DROP TYPE "public"."board_members_status_enum"`);
+        await queryRunner.query(`DROP TYPE "public"."board_members_role_enum"`);
+        await queryRunner.query(`DROP INDEX "public"."idx_card_assignments_card_id"`);
+        await queryRunner.query(`DROP INDEX "public"."idx_card_assignments_board_member_id"`);
+        await queryRunner.query(`DROP TABLE "card_assignments"`);
+        await queryRunner.query(`DROP INDEX "public"."idx_cards_list_id"`);
+        await queryRunner.query(`DROP INDEX "public"."idx_cards_list_id_position"`);
+        await queryRunner.query(`DROP INDEX "public"."idx_cards_due_date"`);
+        await queryRunner.query(`DROP TABLE "cards"`);
+        await queryRunner.query(`ALTER TABLE "boards" ADD CONSTRAINT "uq_boards_user_id_name" UNIQUE ("user_id", "name")`);
+    }
+
+}
