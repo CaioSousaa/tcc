@@ -246,13 +246,6 @@ Cada tela recebe nota de 0 a 2 em três dimensões: **0** divergente · **1** pa
 
 **Nota de fidelidade da execução:** 55,83% — **Parcialmente fiel**
 
-**D) Documentação do processo (Seção 4.6.4)**
-
-- Nº total de prompts:
-- Nº de intervenções manuais corretivas:
-- Erros recorrentes identificados:
-- Estratégias de contorno adotadas:
-
 ### Execução 05 — SDD (Spec-Driven Development) + Claude Sonnet 5
 
 **A) Auditoria funcional**
@@ -296,13 +289,6 @@ Cada tela recebe nota de 0 a 2 em três dimensões: **0** divergente · **1** pa
 | excluir-lista (modal)    | 0,5 | 0,5 | 1,0 | 33,33% |
 
 **Nota de fidelidade da execução:** 81,67% — **Fiel**
-
-**D) Documentação do processo (Seção 4.6.4)**
-
-- Nº total de prompts:
-- Nº de intervenções manuais corretivas:
-- Erros recorrentes identificados:
-- Estratégias de contorno adotadas:
 
 ### Execução 06 — SDD (Spec-Driven Development) + Claude Opus 5
 
@@ -348,13 +334,6 @@ Cada tela recebe nota de 0 a 2 em três dimensões: **0** divergente · **1** pa
 
 **Nota de fidelidade da execução:** 94,17% — **Fiel**
 
-**D) Documentação do processo (Seção 4.6.4)**
-
-- Nº total de prompts:
-- Nº de intervenções manuais corretivas:
-- Erros recorrentes identificados:
-- Estratégias de contorno adotadas:
-
 ### Execução 07 — Self-Planning + Claude Haiku 4.5
 
 **A) Auditoria funcional**
@@ -398,13 +377,6 @@ Cada tela recebe nota de 0 a 2 em três dimensões: **0** divergente · **1** pa
 | excluir-lista (modal)    | 1,0 | 0,5 | 0,5 | 33,33% |
 
 **Nota de fidelidade da execução:** 52,50% — **Parcialmente fiel**
-
-**D) Documentação do processo (Seção 4.6.4)**
-
-- Nº total de prompts:
-- Nº de intervenções manuais corretivas:
-- Erros recorrentes identificados:
-- Estratégias de contorno adotadas:
 
 ### Execução 08 — Self-Planning + Claude Sonnet 5
 
@@ -452,13 +424,6 @@ Cada tela recebe nota de 0 a 2 em três dimensões: **0** divergente · **1** pa
 
 **Nota de fidelidade da execução:** 77,50% — **Fiel**
 
-**D) Documentação do processo (Seção 4.6.4)**
-
-- Nº total de prompts:
-- Nº de intervenções manuais corretivas:
-- Erros recorrentes identificados:
-- Estratégias de contorno adotadas:
-
 ### Execução 09 — Self-Planning + Claude Opus 5
 
 **A) Auditoria funcional**
@@ -502,13 +467,6 @@ Cada tela recebe nota de 0 a 2 em três dimensões: **0** divergente · **1** pa
 | excluir-lista (modal)    | 2,0 | 2,0 | 1,0 | 83,33%  |
 
 **Nota de fidelidade da execução:** **86,67%** — **Fiel**
-
-**D) Documentação do processo (Seção 4.6.4)**
-
-- Nº total de prompts:
-- Nº de intervenções manuais corretivas:
-- Erros recorrentes identificados:
-- Estratégias de contorno adotadas:
 
 ## Quadro-resumo consolidado
 
