@@ -70,7 +70,7 @@ Cada tela recebe nota de 0 a 2 em três dimensões: **0** divergente · **1** pa
 | ---- | ---------------------------------------------------- | ---------- |
 | RF01 | Autenticação de usuário (cadastro / login)           | 🟡 PARTIAL |
 | RF02 | Gerenciamento de quadros (criar/listar/editar/excl)  | ✅ PASS    |
-| RF03 | Gerenciamento de listas dentro de um quadro          |
+| RF03 | Gerenciamento de listas dentro de um quadro          | ❌ FAIL    |
 | RF04 | Gerenciamento de cards (criar/editar/excluir/mover)  | ✅ PASS    |
 | RF05 | Exclusão de lista com cards (regra de cascata)       | 🟡 PARTIAL |
 | RF06 | Checklists com cálculo automático de progresso       | ✅ PASS    |
